@@ -5,19 +5,19 @@
             <div class="text item">
                 <!-- ：model是绑定form表单中提交给后台的一个对象，ref是我们绑定的对象 -->
                 <el-form ref="form" :rules="rules" :model="form" label-width="110px" class="demo-ruleForm">
-                    <el-form-item prop="num1" label="数值范围下限值">
-                        <el-input-number v-model="form.num1"  :min="1" :max="100" label="描述文字" @change="limitNum2"></el-input-number>
+                    <el-form-item prop="min" label="数值范围下限值">
+                        <el-input-number v-model="form.min"  :min="1" :max="100" label="描述文字" @change="limitNum2"></el-input-number>
                     </el-form-item>
-                     <el-form-item prop="num2" label="数值范围上限值">
+                     <el-form-item prop="max" label="数值范围上限值">
                         <el-input-number 
-                        v-model="form.num2" :min="form.num1+1"  :max="100" label="描述文字"></el-input-number>
+                        v-model="form.max" :min="form.min+1"  :max="100" label="描述文字"></el-input-number>
                     </el-form-item>
                     <!-- prop和v-model一致!! -->
-                    <el-form-item prop="number" label="题目数目">
-                        <el-input v-model.number="form.number" placeholder="题目数目在1-100之间"></el-input>
+                    <el-form-item prop="num" label="题目数目">
+                        <el-input v-model.number="form.num" placeholder="题目数目在1-100之间"></el-input>
                     </el-form-item>
-                    <el-form-item prop="value" label="运算符上限">
-                        <el-select v-model="form.value" placeholder="请选择">
+                    <el-form-item prop="maxOper" label="运算符上限">
+                        <el-select v-model="form.maxOper" placeholder="请选择">
                             <el-option
                             v-for="item in form.options"
                             :key="item.value"
@@ -26,18 +26,24 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item prop="" label="是否包含乘除号">
+                    <el-form-item prop="isMul" label="是否包含乘除号">
                         <el-switch
-                        v-model="form.value1"
+                        v-model="form.isMul"
                         active-color="#13ce66"
-                        inactive-color="#909399">
+                        inactive-color="#909399"
+                        active-value="4"
+                        inactive-val="2"
+                        >
                         </el-switch>
                     </el-form-item>
-                    <el-form-item prop="" label="是否包含括号">
+                    <el-form-item prop="isBrac" label="是否包含括号">
                         <el-switch
-                        v-model="form.value2"
+                        v-model="form.isBrac"
                         active-color="#13ce66"
-                        inactive-color="#909399">
+                        inactive-color="#909399"
+                        active-value="0"
+                        inactive-value="1"
+                        >
                         </el-switch>
                     </el-form-item>
                     <el-form-item prop="">
@@ -55,6 +61,7 @@
 import exercisesVue from './Exercises.vue'
 import { required, between, sameAs } from 'vuelidate/lib/validators'
 import Axios from 'axios'
+import qs from 'qs'
 
     export default{
         name:'Exercises',
@@ -62,9 +69,9 @@ import Axios from 'axios'
             return {
                 // form:[],
                 form:{
-                    num1:1,
-                    num2:'',
-                    number:'',
+                    min:1,
+                    max:'',
+                    num:'',
                     options: [{
                         value: '1',
                         label: '1'
@@ -81,83 +88,100 @@ import Axios from 'axios'
                         value: '5',
                         label: '5'
                     }],
-                    value: '',
-                    value1:'',
-                    value2:'',
+                    maxOper: '',
+                    isBrac:'',
+                    isMul:'',
                 },
-                // question:[],
-                // answer:[],
                 rules: {
-                    number: [
+                    num: [
                         // {type:'number',message:'题目数目必须为数字',trigger:'blur'},
                         { required: true, message: '请输入题目数量', trigger: 'blur' },
                         // number is not a string!注意number验证放的位置
                         { min:1,max:100,type:'number',message: '题目数量是在1-100之间的整数', trigger: 'blur' },
                     ],
-                    value:[
+                    maxOper:[
                         {required:true,message:'请选择运算符上限',trigger:'change'}
-                    ],
+                    ]
                 },
 
             }/*return结束 */
         },/*data结束 */
-
-        // created() {
-        //     if ( this.timeOut ) {
-        //         clearTimeout(this.timeOut);
-        //     }
-        //     this.getListIng();
-        // },
-
-
-//         computed:{
-//             timeOut: {
-//                 set (val) {
-//                     this.$store.state.timeout.compileTimeout = val;
-//                 },
-//                 get() {
-//                 return this.$store.state.timeout.compileTimeout;
-//                 }
-//             },
-//         },
 
         // methods带s，并不是数组而是对象
         methods:{
             //自定义验证上下限
             limitNum2(){
                 // 注意数据绑定！
-                if (this.form.num1>=this.form.num2) {
-                    this.form.num2=this.form.num1+1
+                if (this.form.min>=this.form.max) {
+                    this.form.max=this.form.min+1
                 }else{
-                    this.form.num2=this.form.num2
+                    this.form.max=this.form.max
                 }
             },
-            // 验证表单
+            // 提交、验证表单、传值
             submitForm(formName) {
+                let self=this
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         // this.$options.methods.getData() 错
                         // 注意this指向
                         // this.getData()
 
-                        // 路由跳转
-                        this.$router.replace({
-                            path:'/Test',
-                            name:'Test',
-                            query:{
-
-                            }
+                        //传值
+                        let postData=qs.stringify({
+                            "_num":self.form.num,
+                            "_max":self.form.max,
+                            "_min":self.form.min,
+                            "_maxOper":self.form.maxOper,
+                            "_isBrac":self.form.isBrac,
+                            "_isMul":self.form.isMul,
                         })
-                        console.log('successful submit!')
+                        // let api='http://localhost:8080/create'
+                        Axios({
+                            method:'post',
+                            url:'http://localhost:8080/create',
+                            data:postData
+                        })
+                        .then(function (response) {
+                            console.log(response);
+                            console.log('success post!')
+                            //本地存储数据
+                            localStorage.clear
+                            var dataStorage=[]
+                            for (let index = 0; index < response.data.length; index++) {
+                                dataStorage.push(JSON.stringify(response.data[index]))//数组里面粗放字符串
+                            }
+                            localStorage.questions = JSON.stringify(dataStorage);
+                            //将dataStorage存放进localStorage中,注意！！！
+                            console.log(dataStorage)
+                            console.log(localStorage.questions)
+                            // 路由跳转
+                            self.$router.replace({
+                                path:'/Test',
+                                name:'Test',
+                                query:{
+
+                                }
+                            })
+
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                        console.log('success submit!')
                      } else {
                         console.log('error submit!!');
                         return false;
                     }
                 });
+
+
             },
             resetForm(formName) {
                 this.$refs[formName].resetFields();
             },
+            
+
         }
 
     }
@@ -177,7 +201,6 @@ import Axios from 'axios'
     margin: 0 auto;
 }
 #stopBtn{
-    position: absolute;
     bottom: 15px;
     right: 15px;
     background-color: #F56C6C;

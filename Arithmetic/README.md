@@ -1,6 +1,6 @@
 # arithmetic
 
-> four arithmetic exercises
+> A Vue.js project
 
 ## Build Setup
 

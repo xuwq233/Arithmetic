@@ -9,14 +9,15 @@ import Test from '@/pages/Test'
 Vue.use(Router)
 
 export default new Router({
-  routes:[
+  routes: [
     {
-      path:'/',
-      name:'layout',
-      component:layout,
-      children:[
-        {path:'Exercises',name:'Exercises',component:Exercises},
-        {path:'Test',name:'Test',component:Test}
+      path: '/',
+      name: 'layout',
+      component: layout,
+      children: [
+        {path: 'HelloWorld', name: 'HelloWorld', component: HelloWorld},
+        {path: 'Exercises', name: 'Exercises', component: Exercises},
+        {path: 'Test', name: 'Test', component: Test}
       ]
     }
   ]

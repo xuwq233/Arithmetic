@@ -1,85 +1,12 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
+    <div id="words">
+      <p>{{ msg1 }}</p>
+      <router-link to="/Exercises">
+        <el-button type="warning" v-if="flag">进入系统<i class="el-icon-edit el-icon--right"></i></el-button>
+      </router-link>
+    </div>
+    <img src="../assets/TESTSONLINE.png" :style="{transform:'rotateY('+deg+'deg)'}">
   </div>
 </template>
 
@@ -88,26 +15,83 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      deg:0,
+      msg1: '',
+      flag:false,
     }
+  },
+  // 页面加载时触发
+  mounted:function(){
+    this.trans()
+    this.oneByOne()
+  },
+
+  methods:{
+    //旋转效果
+    trans(){
+      let self=this
+      self.timer=setInterval(() => {
+        self.deg+=10
+      }, 200);
+    },
+
+    //字体效果
+    oneByOne(){
+      let i=0
+      let self=this
+      // 实现字符串换行
+      let str1='自主选择，在线答题\n欢迎使用四则运算在线训练系统'
+      let num1=str1.length
+      // let str2="欢迎使用四则运算在线训练系统"
+      self.timerForW1=setInterval(() => {
+        self.msg1=str1.substring(0,i)
+        i++
+        if (this.msg1==str1) {
+          clearInterval(self.timerForW1)
+          self.flag=true
+        }
+      }, 200);
+  
+    },
+
   }
 }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+@font-face{
+  font-family: handwrite;
+  src: url('../assets/字魂62号-瘦金体.ttf')
+}
+#hello{
+  position: relative;
+}
 h1, h2 {
   font-weight: normal;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+img{
+  position: absolute;
+  bottom: 20%;
+  left: 60%;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+#words{
+  text-align: left;
+  font-weight: normal;
+  white-space: pre-wrap;
+/* 解决插值表达式不换行 */
 }
-a {
-  color: #42b983;
+#words p{
+  font-size: 30px;
+  font-family: handwrite;
+  font-weight: 800;
+  width: auto;
+}
+#words{
+  position: absolute;
+  left: 200px;
+  top: 150px;
+  width: auto;
 }
 </style>

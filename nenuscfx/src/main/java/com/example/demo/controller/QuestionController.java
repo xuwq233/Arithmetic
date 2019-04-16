@@ -3,6 +3,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.demo.service.QuestionService;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/")
 public class QuestionController {
@@ -93,9 +95,22 @@ public class QuestionController {
         return null;
     }
 
-
+    @CrossOrigin
     @RequestMapping("/create")
-    public String createFile()throws IOException{
+    public String creatFile(String _num, String _max,String _min,String _maxOper, String _isBrac,String _isMul)throws IOException{
+//        public String creatFile()throws IOException{
+        int num = Integer.parseInt(_num);
+        int max = Integer.parseInt(_max);
+        int min = Integer.parseInt(_min);
+        int maxOper = Integer.parseInt(_maxOper);
+        int isBrac = Integer.parseInt(_isBrac);
+        int isMul = Integer.parseInt(_isMul);
+//        int num =10;
+//        int max=10;
+//        int min=0;
+//        int maxOper = 4;
+//        int isBrac =0;
+//        int isMul = 2;
         File file = new File("../result.txt");
         if (file.exists()) { //如果文件已存在，则删除文件
             file.delete();
@@ -106,8 +121,8 @@ public class QuestionController {
             FileOutputStream txtfile = new FileOutputStream(file);
             PrintStream p = new PrintStream(txtfile);
 //                p.println("2017012842");
-            for(int i=0;i<10;i++){
-                String[] s =  questionService.create();
+            for(int i=0;i<num;i++){
+                String[] s =  questionService.create(max, min, maxOper,  isBrac, isMul);
                 //将式子和答案分开
                 String que = s[0];
                 String answer = s[1];

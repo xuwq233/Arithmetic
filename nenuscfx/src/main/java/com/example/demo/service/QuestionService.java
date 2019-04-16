@@ -9,8 +9,9 @@ public interface QuestionService {
 
     public int[] index(int n, int m);
 
-    //public String[] create(int max, int min, int maxOper,  int isBrac, int isMul);
+    public String[] create(int max, int min, int maxOper,  int isBrac, int isMul);
 
     //用来测试的方法
-    public String[] create();
+    //public String[] create();
 }
+

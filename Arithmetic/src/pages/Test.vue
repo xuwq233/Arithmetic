@@ -1,8 +1,7 @@
 <template>
     <div id="Test">
         <!-- 答题区 -->
-        <el-card class="box-card" id="rightPart">
-            <div>{{callinTime}}</div>
+        <el-card class="box-card" id="leftPart">
             <div class="text item">
                 <el-table :data="dataFromBack2" border>
                     <el-table-column label="题目" prop="QUESTION"></el-table-column>
@@ -16,15 +15,27 @@
                             </el-form>
                         </template>
                     </el-table-column>
-                    <el-table-column label="答案" prop="ANSWER"></el-table-column>
+                    <!-- <el-table-column label="答案" prop="ANSWER"></el-table-column> -->
                 </el-table>
 
                 <el-button id="startBtn" @click="getData();setTime()">开始作答</el-button>
                 <el-button id="stopBtn" @click="getScore()">停止作答</el-button>
                 <el-button id="backBtn" @click="getBack()">返回</el-button>
+            </div>
+        </el-card>
+        <!-- 反馈区 -->
+        <el-card class="box-card" id="rightPart" v-if="flagForC">
+            <div class="text item">
+                <!-- 计时器 -->
+                <div>作答时间：{{callinTime}}</div>
+                <!-- 得分 -->
                 <div id="finalScore">
-                    正确率：<h4>{{score}}</h4>
+                    正确率：<h4>{{scorePer}}</h4>
                 </div>
+                <!-- 下载题目 -->
+                <a href="http://localhost:8080/downloadFile" download="">
+                    <el-button type="primary">下载题目<i class="el-icon-download el-icon--right"></i></el-button>
+                </a>
             </div>
         </el-card>
     </div>
@@ -41,9 +52,10 @@ import Axios from 'axios'
             return{
                 dataFromBack:[],//添加了ANSWER
                 dataFromBack2:[],//添加了UANSWER
-                score:'',//正确率
+                scorePer:'',//百分数
                 callinTime:'',//计时器
                 callinTime:'',
+                flagForC:false,//反馈区v-if
                 rules: {
                     UANSWER:[
                         {required:true,message:'请注意作答！',trigger:'blur'}
@@ -54,31 +66,42 @@ import Axios from 'axios'
         methods:{
             // 请求数据
             getData(){
+                this.flagForC=true
+                //本地存储获取数据
+                var data= JSON.parse(localStorage.getItem('questions'))
+                console.log(data)
+                for (let index = 0; index < data.length; index++) {
+                    data[index]=JSON.parse(data[index])
+                }
+                console.log(data)
+                // console.log(typeof this.dataFromBack2)
                 // 测试
-                var api="https://api.myjson.com/bins/74l63"
-                // var api="http://localhost:8080/create"
-                Axios.get(api).then((response)=>{
-                    console.log(response);
-
+                // let api="https://api.myjson.com/bins/74l63"
+                // let api="http://localhost:8080/create"
+                // Axios.get(api).then((response)=>{
+                    // console.log(response);
+                    
                     // 测试测试，正式删除下列代码,这里是一个json对象数组
-                    response.data=[{"ANSWER":"-1","QUESTION":"1+2-4=-1"},{"ANSWER":"1","QUESTION":"1+1-1=1"},{"ANSWER":"0","QUESTION":"1-1=0"}]
-                    this.dataFromBack=response.data
+                    // response.data=[{"ANSWER":"-1","QUESTION":"1+2-4=-1"},{"ANSWER":"1","QUESTION":"1+1-1=1"},{"ANSWER":"0","QUESTION":"1-1=0"}]
+                    // this.dataFromBack=response.data
                     // 注意this指向
                     // let mydata=JSON.parse(dataFromBack)
                     // json对象无需转换
-                    this.dataFromBack2=this.dataFromBack
-                    for (let index = 0; index < this.dataFromBack2.length; index++) {
+                    this.dataFromBack2=data
+                    for (let index = 0; index < data.length; index++) {
                         // 由于 JavaScript 的限制，Vue 不能检测对象属性的添加或删除：
                         // this.dataFromBack2[index].UANSWER=''  
                         this.$set(this.dataFromBack2[index],'UANSWER','')
                         return this.dataFromBack2;
                         // 返回新数组
                     }
+                    console.log(this.dataFromBack2)
                     // this.dataFromBack2.push(response.data)
                     // console.log(this.dataFromBack2)  
-                }).catch((error)=>{
-                    console.log(error);
-                })
+                // }).catch((error)=>{
+                    // console.log(error);
+                // })
+                localStorage.clear()
             },
 
             // 得到成绩
@@ -97,12 +120,16 @@ import Axios from 'axios'
                     }
                 }
                 let fullScore=self.dataFromBack2.length;
-                self.score=eval(j/fullScore);
+                let score=eval(j/fullScore);
+                // 转换成百分数
+                let scoreMul=Number(score*100).toFixed(1)
+                self.scorePer=scoreMul+'%'
+                localStorage.clear()
             },
 
             // 返回选择页面
             getBack(){
-                if (true) {
+                // if (true) {
                     this.$router.replace({
                         path:'/Exercises',
                         name:'Exercises',
@@ -110,7 +137,8 @@ import Axios from 'axios'
 
                         }
                     })
-                }
+                // }
+                localStorage.clear()
             },
 
             //计时器
@@ -145,7 +173,12 @@ import Axios from 'axios'
                 // window.clearInterval(_this.timer)
                 // }
             },
-            
+
+            //阻止跳转
+            // stop(){
+            //     return flase;
+            // }
+
 
         }//methods结束
 
@@ -160,8 +193,17 @@ import Axios from 'axios'
 .item {
     padding: 18px 0;
 }
-.box-card {
+#leftPart {
     width: 480px;
     margin: 0 auto;
+    overflow: auto;
+    display: inline-block;
+}
+#rightPart{
+    width: 480px;
+    height:300px;
+    margin: 0 auto;
+    margin-bottom: 325px;
+    display: inline-block;
 }
 </style>

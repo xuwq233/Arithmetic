@@ -157,12 +157,12 @@ public class QuestionServiceImpl implements QuestionService {
         return a;
     }
 
-    public String[] create(){
-        int max=10 ;
-        int min=0 ;
-        int maxOper=5;
-        int isBrac=1;
-        int isMul=4;
+    public String[] create(int max, int min, int maxOper,  int isBrac, int isMul){
+//        int max=10 ;
+//        int min=0 ;
+//        int maxOper=5;
+//        int isBrac=1;
+//        int isMul=4;
         String[] string = new String[2];
         Random r = new Random();
         String[] opertor = {"+","-","*","÷"};
@@ -219,7 +219,7 @@ public class QuestionServiceImpl implements QuestionService {
             return string;
 
         }else{
-            return create();
+            return create(max, min, maxOper, isBrac, isMul);
         }
     }
 }
